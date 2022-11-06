@@ -18,7 +18,7 @@ class OperationsServices:
         """Get specific operation by id
 
         Args:
-            user_id (int): to get data for specific authorized user
+            user_id (int): get data for specific authorized user
             operation_id (int): operation id
 
         Raises:
@@ -45,6 +45,7 @@ class OperationsServices:
         """Return all operations
 
         Returns:
+            user_id (int): get operations for specific authorized user
             kind (Optional[Operationkind], optional): filter by operation kind or not.
             Defaults to None.
             list[tables.Operation]: operations
@@ -66,6 +67,7 @@ class OperationsServices:
         """Get specific operation by id
 
         Args:
+            user_id (int): get operations for specific authorized user
             operation_id (int): operation id
 
         Raises:
@@ -77,12 +79,13 @@ class OperationsServices:
         return self._get(user_id, operation_id)
 
     def create(self,
-               user_id: int, 
+               user_id: int,
                operation_data: OperationCreate
                ) -> tables.Operation:
         """Insert operations to database
 
         Args:
+            user_id (int): insert operations related to specific user
             operation_data (OperationCreate): data to be inserted into `operation`
             table
 
@@ -102,6 +105,7 @@ class OperationsServices:
         """Update operation by operation_id or raise 403
 
         Args:
+            user_id (int): update operations for specific authorized user
             operation_id (int): opeartion to update (id from database)
             operation_data (OperationUpdate): data to update
 
@@ -118,6 +122,7 @@ class OperationsServices:
         """Delete specific operation by id or raise 403
 
         Args:
+            user_id (int): delete operations for specific authorized user
             operation_id (int): opeartion to delete (id from database)
         """
         operation = self._get(user_id, operation_id)
