@@ -2,7 +2,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
 from .settings import settings
 
 
@@ -12,7 +11,6 @@ engine = create_engine(
     # To have one query - one session
     connect_args={'check_same_thread': False},
 )
-
 
 Session = sessionmaker(
     engine,
@@ -26,5 +24,8 @@ def get_session():
     session = Session()
     try:
         yield session
+    except:
+        session.rollback()
+        raise      
     finally:
         session.close()
