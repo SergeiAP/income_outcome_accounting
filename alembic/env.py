@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -8,11 +9,11 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 
-from src.accounts.tables import Base
+from src.accounts.tables import Base  # pylint: disable=import-error,no-name-in-module,no-member
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config = context.config  # pylint: disable=no-member
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -33,7 +34,7 @@ target_metadata = Base.metadata
 
 # import dtabase url from .env
 load_dotenv("./src/accounts/.env")
-config.set_main_option('sqlalchemy.url', os.environ.get("DATABASE_URL"))
+config.set_main_option('sqlalchemy.url', os.environ.get("DATABASE_URL"))  # type: ignore
 print(os.environ.get("DATABASE_URL"))
 
 
@@ -50,15 +51,15 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(
+    context.configure(                 # pylint: disable=no-member
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with context.begin_transaction():  # pylint: disable=no-member
+        context.run_migrations()       # pylint: disable=no-member
 
 
 def run_migrations_online() -> None:
@@ -69,21 +70,21 @@ def run_migrations_online() -> None:
 
     """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        config.get_section(config.config_ini_section),  # type: ignore
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
-        context.configure(
+        context.configure(                 # pylint: disable=no-member
             connection=connection, target_metadata=target_metadata
         )
 
-        with context.begin_transaction():
-            context.run_migrations()
+        with context.begin_transaction():  # pylint: disable=no-member
+            context.run_migrations()       # pylint: disable=no-member
 
 
-if context.is_offline_mode():
+if context.is_offline_mode():              # pylint: disable=no-member
     run_migrations_offline()
 else:
     run_migrations_online()
