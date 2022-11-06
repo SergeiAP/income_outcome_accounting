@@ -12,3 +12,6 @@ quit()
 ```bash
 cd ./database && make fill_database
 ```
+## X. Notes
+
+To check encrypt token use https://jwt.io/ site.
