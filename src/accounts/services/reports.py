@@ -4,6 +4,7 @@ from io import StringIO
 from typing import Any
 
 from fastapi import Depends, HTTPException, status
+from starlette.datastructures import UploadFile
 
 from ..models.operations import Operation, OperationCreate, OperationsNumChange
 from .operations import OperationsService
@@ -16,12 +17,12 @@ class ReportsService:
     def __init__(self, operations_service: OperationsService = Depends()):
         self.operations_service = operations_service
 
-    def import_csv(self, user_id: int, file: Any) -> OperationsNumChange:
+    def import_csv(self, user_id: int, file: UploadFile) -> OperationsNumChange:
         """Import data from .csv to database
 
         Args:
             user_id (int): user id of operations owner
-            file (Any): file in bytes
+            file (UploadFile): file in bytes
         Returns:
             OperationsNumChange: number of rows
         """

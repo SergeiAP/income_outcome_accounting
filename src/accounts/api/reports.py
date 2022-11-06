@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring
 import os
 from typing import Any
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, BackgroundTasks
 from fastapi.responses import StreamingResponse
 
 from ..models.operations import OperationsNumChange
@@ -12,7 +12,8 @@ from ..services.reports import ReportsService
 
 
 router = APIRouter(
-    prefix='/reports'
+    prefix='/reports',
+    tags=['reports'],
 )
 
 
@@ -43,9 +44,11 @@ def export_csv(user: User = Depends(get_current_user),
 
 
 @router.post('/import')
-def import_csv(file: UploadFile = File(...),  # also exists async method
+def import_csv(background_tasks: BackgroundTasks,
+               file: UploadFile = File(...),  # also exists async method
                user: User = Depends(get_current_user),
-               reports_service: ReportsService = Depends(),) -> OperationsNumChange:
+               reports_service: ReportsService = Depends(),
+               ) -> dict[str, str]:
     """Import data from .csv file
 
     Args:
@@ -55,9 +58,10 @@ def import_csv(file: UploadFile = File(...),  # also exists async method
         Defaults to Depends().
 
     Returns:
-        OperationsNumChange: operations number statistics before and after insert
+        dict[str, str]: waiting message
     """
-    print(type(file))
-    # Handle the file in csv-only format
-    rows_statistics = reports_service.import_csv(user.id, file)
-    return rows_statistics
+    # Make import as background task
+    background_tasks.add_task(reports_service.import_csv, user.id, file)
+    # Or synchronously:
+    # rows_statistics = reports_service.import_csv(user.id, file)->OperationsNumChange
+    return {"message": "File for importing just has sent in the background"}

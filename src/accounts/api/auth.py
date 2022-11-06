@@ -12,7 +12,8 @@ from ..models.auth import (
 
 
 router = APIRouter(
-    prefix='/auth'
+    prefix='/auth',
+    tags=['auth'],
 )
 
 
