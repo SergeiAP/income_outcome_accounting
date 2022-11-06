@@ -12,7 +12,8 @@ from ..services.reports import ReportsService
 
 
 router = APIRouter(
-    prefix='/reports'
+    prefix='/reports',
+    tags=['reports'],
 )
 
 
