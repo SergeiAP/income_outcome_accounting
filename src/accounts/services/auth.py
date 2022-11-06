@@ -8,8 +8,8 @@ from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from ..tables import User as UserORM
-from ..models.auth import User, Token, UserCreate
+from ..tables import User as TablesUser
+from ..models.auth import User as ModelsUser, Token, UserCreate
 from ..settings import settings
 from ..database import get_session
 
@@ -18,7 +18,7 @@ from ..database import get_session
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in')
 
 
-def get_current_user(token: str = Depends(oauth_scheme)) -> User:
+def get_current_user(token: str = Depends(oauth_scheme)) -> ModelsUser:
     """Check token in the url, return user if ok. If no token - redicrect to 
     `/auth/sign-in/`
 
@@ -26,7 +26,7 @@ def get_current_user(token: str = Depends(oauth_scheme)) -> User:
         token (str, optional): token itself. Defaults to Depends(oauth_scheme).
 
     Returns:
-        User: user data
+        models.auth.user: user data
     """
     return AuthService.validate_token(token)
 
@@ -59,7 +59,7 @@ class AuthService:
         return bcrypt.hash(pwd)
 
     @classmethod
-    def validate_token(cls, token: str) -> User:
+    def validate_token(cls, token: str) -> ModelsUser:
         """Method to check token in request
 
         Args:
@@ -69,7 +69,7 @@ class AuthService:
             exeption: if token is incorrect
 
         Returns:
-            User: user data
+            models.auth.User: user data
         """
         exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -84,31 +84,31 @@ class AuthService:
                 settings.jwt_secret,
                 algorithms=[settings.jwt_algorithm],
             )
-        except JWTError:
+        except JWTError as e:
             raise exception from None
 
         user_data = payload.get('user')
 
         try:
-            user = User.parse_obj(user_data)
+            user = ModelsUser.parse_obj(user_data)
         except ValidationError:
             raise exception from None
 
         return user
 
     @classmethod
-    def create_token(cls, user: UserORM) -> Token:
+    def create_token(cls, user: TablesUser) -> Token:
         """Create token based on system jwt fields and user data
 
         Args:
-            user (UserORM): user data
+            user (tables.User): user data
 
         Returns:
             Token: generated token
         """
-        user_data = user.from_orm(user)
+        user_data = ModelsUser.from_orm(user)
 
-        now = datetime.now()
+        now = datetime.utcnow()
         payload = {
             # Token created time
             'iat': now,
@@ -134,12 +134,12 @@ class AuthService:
         """Register new user and return hist token
 
         Args:
-            user_data (UserCreate): user info
+            user_data (models.auth.UserCreate): user info
 
         Returns:
             Token: token with specific expiration datetime
         """
-        user = UserORM(
+        user = TablesUser(
             email=user_data.email,
             username=user_data.username,
             password_hash=self.hash_password(user_data.password)
@@ -172,8 +172,8 @@ class AuthService:
         )
         user = (
             self.session
-            .query(UserORM)
-            .filter(UserORM.username == username)
+            .query(TablesUser)
+            .filter(TablesUser.username == username)
             .first()
         )
 
