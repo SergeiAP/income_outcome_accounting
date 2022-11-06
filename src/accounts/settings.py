@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = 'HS256'
     jwt_expiration: int = 3600  # in seconds
 
+    app_name: str ='Income outcome accounting (based on FastAPI example)'
+    admin_email: str = 'Sergei.A.P@yandex.com'
+    github_link: str = 'https://github.com/SergeiAP/income_outcome_accounting'
+
     class Config:
         """Config to set .env file uploading"""
         env_file = './src/app/.env'

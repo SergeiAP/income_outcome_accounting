@@ -14,6 +14,7 @@ from ..services.reports import ReportsService
 router = APIRouter(
     prefix='/reports',
     tags=['reports'],
+    dependencies=[Depends(get_current_user)],
 )
 
 
