@@ -14,10 +14,11 @@ class OperationsServices:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def _get(self, operation_id: int) -> tables.Operation:
+    def _get(self, user_id: int, operation_id: int) -> tables.Operation:
         """Get specific operation by id
 
         Args:
+            user_id (int): get data for specific authorized user
             operation_id (int): operation id
 
         Raises:
@@ -29,7 +30,7 @@ class OperationsServices:
         operation = (
             self.session
             .query(tables.Operation)
-            .filter_by(id=operation_id)
+            .filter_by(id=operation_id, user_id=user_id,)
             .first()
         )
         if not operation:
@@ -37,24 +38,36 @@ class OperationsServices:
                 status_code=status.HTTP_404_NOT_FOUND)
         return operation
 
-    def get_list(self, kind: Optional[OperationKind] = None) -> list[tables.Operation]:
+    def get_list(self,
+                 user_id: int, 
+                 kind: Optional[OperationKind] = None
+                 ) -> list[tables.Operation]:
         """Return all operations
 
         Returns:
+            user_id (int): get operations for specific authorized user
             kind (Optional[Operationkind], optional): filter by operation kind or not.
             Defaults to None.
             list[tables.Operation]: operations
         """
-        query = self.session.query(tables.Operation)
+        query = (
+            self.session
+            .query(tables.Operation)
+            .filter_by(user_id=user_id)
+        )
         if kind:
             query = query.filter_by(kind=kind)
         operations = query.all()
         return operations
 
-    def get(self, operation_id: int) -> tables.Operation:
+    def get(self,
+            user_id: int,
+            operation_id: int
+            ) -> tables.Operation:
         """Get specific operation by id
 
         Args:
+            user_id (int): get operations for specific authorized user
             operation_id (int): operation id
 
         Raises:
@@ -63,48 +76,55 @@ class OperationsServices:
         Returns:
             tables.Operation: data of specific operation
         """
-        return self._get(operation_id)
+        return self._get(user_id, operation_id)
 
-    def create(self, operation_data: OperationCreate) -> tables.Operation:
+    def create(self,
+               user_id: int,
+               operation_data: OperationCreate
+               ) -> tables.Operation:
         """Insert operations to database
 
         Args:
+            user_id (int): insert operations related to specific user
             operation_data (OperationCreate): data to be inserted into `operation`
             table
 
         Returns:
             tables.Operation: return operation_data with id
         """
-        operation = tables.Operation(**operation_data.dict(),)
+        operation = tables.Operation(**operation_data.dict(), user_id=user_id)
         self.session.add(operation)
         self.session.commit()
         return operation
 
     def update(self,
+               user_id: int, 
                operation_id: int,
                operation_data: OperationUpdate
                ) -> tables.Operation:
         """Update operation by operation_id or raise 403
 
         Args:
+            user_id (int): update operations for specific authorized user
             operation_id (int): opeartion to update (id from database)
             operation_data (OperationUpdate): data to update
 
         Returns:
             tables.Operation: updated operation
         """
-        operation = self._get(operation_id)
+        operation = self._get(user_id, operation_id)
         for field, value in operation_data:
             setattr(operation, field, value)
         self.session.commit()
         return operation
 
-    def delete(self, operation_id: int) -> None:
+    def delete(self, user_id: int,  operation_id: int) -> None:
         """Delete specific operation by id or raise 403
 
         Args:
+            user_id (int): delete operations for specific authorized user
             operation_id (int): opeartion to delete (id from database)
         """
-        operation = self._get(operation_id)
+        operation = self._get(user_id, operation_id)
         self.session.delete(operation)
         self.session.commit()

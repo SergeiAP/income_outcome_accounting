@@ -15,12 +15,14 @@ from ..database import get_session
 
 
 # '/auth/sign-in/' - redirect url if no token provided
+# Required to set authorization for FasAPI 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in')
 
 
 def get_current_user(token: str = Depends(oauth_scheme)) -> ModelsUser:
-    """Check token in the url, return user if ok. If no token - redicrect to 
-    `/auth/sign-in/`
+    """Check token in the url, return user if ok. If no token - redicrect to
+    `/auth/sign-in/`. The logic how to handle with such auth schema. it is going to be
+    used in Depends().
 
     Args:
         token (str, optional): token itself. Defaults to Depends(oauth_scheme).
@@ -151,7 +153,7 @@ class AuthService:
         return self.create_token(user)
 
     def authentificate_user(self, username: str, password: str) -> Token:
-        """Generate time limited token
+        """Generate time limited token: take username and password, give token
 
         Args:
             username (str): username in database
