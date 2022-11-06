@@ -7,7 +7,7 @@ from ..services.auth import get_current_user
 from ..models.operations import (
     Operation, OperationCreate, OperationKind, OperationUpdate)
 from .. import tables
-from ..services.operations import OperationsServices
+from ..services.operations import OperationsService
 
 
 router = APIRouter(
@@ -18,7 +18,7 @@ router = APIRouter(
 @router.get('/', response_model=list[Operation])
 def get_operations(kind: Optional[OperationKind] = None,
                    user: User = Depends(get_current_user),
-                   service: OperationsServices = Depends(),
+                   service: OperationsService = Depends(),
                    ) -> list[tables.Operation]:
     """Get all operations from the db
 
@@ -27,7 +27,7 @@ def get_operations(kind: Optional[OperationKind] = None,
         all opearions. Defaults to None.
         user (User, optional): authentificated user with it's data.
         Defaults to Depends(get_current_user).
-        service (OperationsServices, optional): run database session using __init__.
+        service (OperationsService, optional): run database session using __init__.
         Defaults to Depends().
 
     Returns:
@@ -39,7 +39,7 @@ def get_operations(kind: Optional[OperationKind] = None,
 @router.post('/', response_model=Operation)
 def create_operation(operation_data: OperationCreate,
                      user: User = Depends(get_current_user),
-                     service: OperationsServices = Depends(),
+                     service: OperationsService = Depends(),
                      ) -> tables.Operation:
     """Insert operation to database
 
@@ -47,7 +47,7 @@ def create_operation(operation_data: OperationCreate,
         operation_data (OperationCreate): operations to be inserted.
         user (User, optional): authentificated user with it's data.
         Defaults to Depends(get_current_user).
-        service (OperationsServices, optional): run database session using __init__.
+        service (OperationsService, optional): run database session using __init__.
         Defaults to Depends().
     """
     return service.create(user_id=user.id, operation_data=operation_data)
@@ -56,7 +56,7 @@ def create_operation(operation_data: OperationCreate,
 @router.get('/{operation_id}', response_model=Operation)
 def get_operation(operation_id: int,
                   user: User = Depends(get_current_user),
-                  service: OperationsServices = Depends(),
+                  service: OperationsService = Depends(),
                   ) -> tables.Operation:
     """Get operation data by id (from database)
 
@@ -64,7 +64,7 @@ def get_operation(operation_id: int,
         operation_id (int): id of operation in database
         user (User, optional): authentificated user with it's data.
         Defaults to Depends(get_current_user).
-        service (OperationsServices, optional): run database session using __init__.
+        service (OperationsService, optional): run database session using __init__.
         Defaults to Depends().
 
     Returns:
@@ -76,7 +76,7 @@ def get_operation(operation_id: int,
 def update_operation(operation_id: int,
                      operation_data: OperationUpdate,
                      user: User = Depends(get_current_user),
-                     service: OperationsServices = Depends(),
+                     service: OperationsService = Depends(),
                      ) -> tables.Operation:
     """Update operation by id (from database)
 
@@ -85,7 +85,7 @@ def update_operation(operation_id: int,
         operation_data (OperationUpdate): data to be updated
         user (User, optional): authentificated user with it's data.
         Defaults to Depends(get_current_user).
-        service (OperationsServices, optional): run database session using __init__.
+        service (OperationsService, optional): run database session using __init__.
         Defaults to Depends().
 
     Returns:
@@ -100,7 +100,7 @@ def update_operation(operation_id: int,
 @router.delete('/{operation_id}')
 def delete_operation(operation_id: int,
                      user: User = Depends(get_current_user),
-                     service: OperationsServices = Depends(),
+                     service: OperationsService = Depends(),
                      ) -> Response:
     """Delete operation by id (from database)
 
@@ -108,7 +108,7 @@ def delete_operation(operation_id: int,
         operation_id (int): operation to be deleted
         user (User, optional): authentificated user with it's data.
         Defaults to Depends(get_current_user).
-        service (OperationsServices, optional): run database session using __init__.
+        service (OperationsService, optional): run database session using __init__.
         Defaults to Depends().
 
     Returns:
