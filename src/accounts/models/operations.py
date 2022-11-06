@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 from enum import Enum
 from typing import Optional
-from pydantic import BaseModel  # pylint: disable=no-name-in-module
+from pydantic import BaseModel, root_validator  # pylint: disable=no-name-in-module
 
 
 class OperationKind(str, Enum):
@@ -35,3 +35,16 @@ class OperationCreate(OperationBase):
 
 class OperationUpdate(OperationBase):
     """Schema to update operation"""
+
+
+class OperationsNumChange(BaseModel):
+    """Schema to show chnaged number of rows"""
+    rows_number_before: int
+    rows_number_after: int
+
+    @root_validator(pre=False)
+    def calculate_number_diff(cls, values) -> dict:  # pylint: disable=no-self-argument
+        """Calculate roews differewnce"""
+        values["rows_number_difference"] = (
+            values.get("rows_number_after") - values.get("rows_number_before"))
+        return values

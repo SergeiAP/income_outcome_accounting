@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from ..tables import Operation as TablesOperation
 from ..database import get_session
-from ..models.operations import OperationCreate, OperationKind, OperationUpdate
+from ..models.operations import (
+    OperationCreate, OperationKind, OperationUpdate)
 
 
 class OperationsService:
@@ -96,6 +97,23 @@ class OperationsService:
         self.session.add_all(operations)
         self.session.commit()
         return operations
+
+    def get_row_counts(self, user_id: int,) -> int:
+        """Get number of rows in operations database
+
+        Args:
+            user_id (int): number of rows related to specific user
+
+        Returns:
+            int: number of rows
+        """
+        query = (
+            self.session
+            .query(TablesOperation)
+            .filter_by(user_id=user_id)
+            .count()
+        )
+        return query
 
     def create(self,
                user_id: int,
